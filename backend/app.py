@@ -15,9 +15,11 @@ from routes.dashboard import dashboard_bp
 load_dotenv()
 
 app = Flask(__name__)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 CORS(
   app,
-  resources={r"/api/*": {"origins": "http://localhost:5173"}},
+  resources={r"/api/*": {"origins": FRONTEND_URL}},
   supports_credentials=True
 )
 bcrypt = Bcrypt(app)
