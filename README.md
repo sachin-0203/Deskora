@@ -41,6 +41,7 @@ A full-stack collaborative task management system built using React, Flask, and 
 
 ### Database
 - PostgreSQL / SQLite
+- 
 
 ---
 
