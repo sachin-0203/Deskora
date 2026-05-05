@@ -16,6 +16,7 @@ def signup():
   email = data.get("email")
   password = data.get("password")
 
+  # Validation
   if not name or not email or not password:
     return jsonify({"error": "All fields required"}), 400
 
@@ -44,8 +45,9 @@ def login():
 
   user = User.query.filter_by(email=email).first()
 
+  # Validation
   if not user or not bcrypt.check_password_hash(user.password, password):
-      return jsonify({"error": "Invalid credentials"}), 401
+    return jsonify({"error": "Invalid credentials"}), 401
 
   # Generate JWT token
   token = create_access_token(identity=str(user.id))

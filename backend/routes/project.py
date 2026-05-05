@@ -99,6 +99,35 @@ def add_member(project_id):
 
   return jsonify({"message": "Member added"}), 200
 
+# ---------------- GET PROJECT MEMBERS ----------------
+@project_bp.route("/<int:project_id>/members", methods=["GET"])
+@jwt_required()
+def get_members(project_id):
+  user_id = int(get_jwt_identity())
+
+  # Check if user belongs to project
+  membership = ProjectMembers.query.filter_by(
+    user_id=user_id,
+    project_id=project_id
+  ).first()
+
+  if not membership:
+    return jsonify({"error": "Unauthorized"}), 403
+
+  members = ProjectMembers.query.filter_by(project_id=project_id).all()
+
+  result = []
+  for m in members:
+    user = User.query.get(m.user_id)
+    result.append({
+      "id": user.id,
+      "name": user.name,
+      "email": user.email,
+      "role": m.role
+    })
+
+  return jsonify(result), 200
+
 
 # ---------------- REMOVE MEMBER (ADMIN ONLY) ----------------
 @project_bp.route("/<int:project_id>/remove-member/<int:member_id>", methods=["DELETE"])
@@ -113,7 +142,7 @@ def remove_member(project_id, member_id):
   ).first()
 
   if not admin or admin.role != "admin":
-    return jsonify({"error": "Only admin can remove members"}), 403
+    return jsonify({"error": "Only admin can rpemove members"}), 403
 
   member = ProjectMembers.query.filter_by(
     user_id=member_id,

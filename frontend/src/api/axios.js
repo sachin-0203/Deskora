@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:5000",
+  baseURL: "http://127.0.0.1:5000/api",
 });
 
+// Attach token
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -11,5 +12,20 @@ API.interceptors.request.use((req) => {
   }
   return req;
 });
+
+// Handle expired token
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response && err.response.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem("token");
+
+      // Redirect to login
+      window.location.href = "/login";
+    }
+    return Promise.reject(err);
+  }
+);
 
 export default API;
