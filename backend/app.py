@@ -15,7 +15,11 @@ from routes.dashboard import dashboard_bp
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+  app,
+  resources={r"/api/*": {"origins": "http://localhost:5173"}},
+  supports_credentials=True
+)
 bcrypt = Bcrypt(app)
 
 # ---------------- CONFIG ----------------

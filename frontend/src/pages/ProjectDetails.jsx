@@ -114,9 +114,8 @@ export default function ProjectDetails() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto">
-
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        {/* <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Project Details</h1>
 
           <button
@@ -125,11 +124,30 @@ export default function ProjectDetails() {
           >
             Dashboard →
           </button>
+        </div> */}
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Project Details</h1>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(`/dashboard/${id}`)}
+              className="text-blue-500 text-sm hover:underline"
+            >
+              Dashboard →
+            </button>
+
+            <button
+              onClick={handleDeleteProject}
+              className="text-red-500 text-sm hover:underline"
+            >
+              Delete Project
+            </button>
+          </div>
         </div>
 
         {/* 👥 MEMBERS SECTION (70% - 30% layout) */}
         <div className="flex gap-6 mb-6">
-
           {/* LEFT: Add Member (70%) */}
           <div className="w-[70%]">
             <div className="bg-white p-4 rounded-lg border shadow-sm">
@@ -153,7 +171,6 @@ export default function ProjectDetails() {
           <div className="w-[30%]">
             <MemberList members={members} onRemove={handleRemoveMember} />
           </div>
-
         </div>
 
         {/* ➕ TASK FORM */}
@@ -164,9 +181,7 @@ export default function ProjectDetails() {
         {/* 📋 TASK LIST */}
         <div className="space-y-3">
           {tasks.length === 0 ? (
-            <p className="text-center text-gray-500 py-10">
-              No tasks yet
-            </p>
+            <p className="text-center text-gray-500 py-10">No tasks yet</p>
           ) : (
             tasks.map((task) => (
               <TaskCard
@@ -178,7 +193,6 @@ export default function ProjectDetails() {
             ))
           )}
         </div>
-
       </div>
     </div>
   );

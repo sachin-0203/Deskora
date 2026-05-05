@@ -3,9 +3,6 @@ export default function MemberList({ members, onRemove }) {
     <div className="bg-white p-4 rounded-lg border shadow-sm h-full">
       <h2 className="font-semibold mb-3">Members</h2>
 
-
-      {console.log(members)}
-
       {members.length === 0 ? (
         <p className="text-sm text-gray-500 overflow-auto">No members</p>
       ) : (
