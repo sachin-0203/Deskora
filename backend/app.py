@@ -31,14 +31,11 @@ if not jwt_secret:
 CORS(
   app,
   resources={r"/api/*": {
-    "origins": [
-      "http://localhost:5173",
-      FRONTEND_URL
-    ],
-    "methods" : ["GET","PUT","DELETE","OPTIONS"],
-    "allow_headers" : ["Content-Type","Authorization"],
-    "supports_credentials": True,
-  }},
+    "origins": ["http://localhost:5173", FRONTEND_URL],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization"],
+    "supports_credentials": True
+  }}
 )
 bcrypt = Bcrypt(app)
 
