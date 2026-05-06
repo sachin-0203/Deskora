@@ -16,28 +16,44 @@ load_dotenv()
 
 app = Flask(__name__)
 
+
+# ---------VALIDATE ENV VARS
+
 FRONTEND_URL = os.getenv("FRONTEND_URL")
+if not FRONTEND_URL:
+  raise RuntimeError("FRONTEND_URL environment variable is not set!")
+
+jwt_secret = os.getenv("JWT_SECRET_KEY")
+if not jwt_secret:
+  raise RuntimeError("JWT_SECRET_KEY is not set!")
+
+
 CORS(
   app,
   resources={r"/api/*": {
     "origins": [
       "http://localhost:5173",
-      "https://deskoraa.netlify.app/"
-    ]
+      FRONTEND_URL
+    ],
+    "methods" : ["GET","PUT","DELETE","OPTIONS"],
+    "allow_headers" : ["Content-Type","Authorization"],
+    "supports_credentials": True,
   }},
-  supports_credentials=True
 )
 bcrypt = Bcrypt(app)
+
 
 # ---------------- CONFIG ----------------
 db_url = os.getenv("DATABASE_URL")
 
 if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+  db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "fallback-secret")
+app.config["JWT_SECRET_KEY"] = jwt_secret
+
+
 # ---------------- INIT ----------------
 db.init_app(app)
 jwt = JWTManager(app)
@@ -66,4 +82,5 @@ with app.app_context():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-  app.run(debug=True)
+  port = int(os.environ.get("PORT", 5000))
+  app.run(host="0.0.0.0", port=port,debug=False)
