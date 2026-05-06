@@ -36,6 +36,34 @@ def create_project():
     "project_id": project.id
   }), 201
 
+# ---------------- DELETE PROJECT (ADMIN ONLY) ----------------
+@project_bp.route("/<int:project_id>", methods=["DELETE"])
+@jwt_required()
+def delete_project(project_id):
+  user_id = int(get_jwt_identity())
+
+  # Check if current user is admin
+  member = ProjectMembers.query.filter_by(
+    user_id=user_id,
+    project_id=project_id
+  ).first()
+
+  if not member or member.role != "admin":
+    return jsonify({"error": "Only admin can delete project"}), 403
+
+  project = Project.query.get(project_id)
+  if not project:
+    return jsonify({"error": "Project not found"}), 404
+
+  # Delete related data first (order matters)
+  from models import Task  # only if you have Task model
+  Task.query.filter_by(project_id=project_id).delete()
+  ProjectMembers.query.filter_by(project_id=project_id).delete()
+
+  db.session.delete(project)
+  db.session.commit()
+
+  return jsonify({"message": "Project deleted"}), 200
 
 # ---------------- GET USER PROJECTS ----------------
 @project_bp.route("/", methods=["GET"])
