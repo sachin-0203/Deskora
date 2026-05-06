@@ -12,7 +12,7 @@ export default function TaskCard({ task, onStatusChange, onDelete }) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg border shadow-sm">
+    <div className="relative bg-white p-4 rounded-lg border shadow-sm">
 
       {/*  TITLE */}
       <h2 className="text-lg font-semibold">
@@ -56,7 +56,7 @@ export default function TaskCard({ task, onStatusChange, onDelete }) {
             onDelete(task.id);
           }
         }}
-        className="mt-3 bg-red-500 text-white px-3 py-1 rounded text-sm"
+        className="absolute top-2 right-3  mt-3 bg-red-200 hover:bg-red-400 text-black px-3 py-1 rounded text-sm"
       >
         Delete
       </button>

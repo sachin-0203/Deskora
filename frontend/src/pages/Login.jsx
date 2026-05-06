@@ -37,7 +37,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-md">
+      <div className="relative w-full max-w-md bg-white p-6 rounded-xl shadow-md">
 
         <h2 className="text-2xl font-bold text-gray-800 mb-1">
           Welcome back 👋
@@ -45,6 +45,10 @@ export default function Login() {
         <p className="text-sm text-gray-500 mb-6">
           Please login to continue
         </p>
+
+        <div className="absolute top-3 right-3 hover:bg-gray-200 px-2 rounded-md duration-300  cursor-pointer" onClick={()=>navigate("/")} >
+          ← Back
+        </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
 

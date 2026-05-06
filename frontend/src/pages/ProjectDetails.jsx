@@ -132,14 +132,14 @@ export default function ProjectDetails() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(`/dashboard/${id}`)}
-              className="text-blue-500 text-sm hover:underline"
+              className="cursor-pointer text-black hover:bg-green-300 border border-green-500 p-2 rounded-md bg-green-200 duration-300 "
             >
               Dashboard →
             </button>
 
             <button
               onClick={handleDeleteProject}
-              className="text-red-500 text-sm hover:underline"
+              className="cursor-pointer text-black hover:bg-red-300 border border-red-500 p-2 rounded-md bg-red-200 duration-300 "
             >
               Delete Project
             </button>
