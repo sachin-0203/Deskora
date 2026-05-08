@@ -6,6 +6,8 @@ import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from "./pages/Dashboard";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import About from "./components/About";
+import Guide from "./components/Guide";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
 
         <Route element={<Layout />}>
+          <Route path="/about" element={<About />} />
+          <Route path="/guide" element={<Guide />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/dashboard/:id" element={<Dashboard />} />

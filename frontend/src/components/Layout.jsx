@@ -6,25 +6,6 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      {/* <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
-        <h1
-          className="font-bold text-lg tracking-wide cursor-pointer"
-          onClick={() => navigate("/projects")}
-        >
-          DESKORA
-        </h1>
-
-        <button
-          onClick={() => {
-            localStorage.clear();
-            navigate("/");
-          }}
-          className="text-sm text-red-500 hover:text-red-600 transition"
-        >
-          Logout
-        </button>
-      </header> */}
       <Navbar/>
 
       {/* Page Content */}
