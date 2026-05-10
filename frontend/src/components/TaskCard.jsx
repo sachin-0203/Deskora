@@ -25,23 +25,28 @@ export default function TaskCard({ task, onStatusChange, onDelete }) {
   };
 
   // Handle Delete
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm("Delete this task?");
-
-    if (!confirmDelete) return;
-
-    try {
-      setLoading(true);
-
-      await onDelete(task.id);
-
-      toast.success("Task deleted successfully");
-    } catch (err) {
-      toast.error("Failed to delete task");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleDelete = async () => {
+  toast("Delete this task?", {
+    action: {
+      label: "Delete",
+      onClick: async () => {
+        try {
+          setLoading(true);
+          await onDelete(task.id);
+          toast.success("Task deleted successfully");
+        } catch (err) {
+          toast.error("Failed to delete task");
+        } finally {
+          setLoading(false);
+        }
+      },
+    },
+    cancel: {
+      label: "Cancel",
+      onClick: () => {},
+    },
+  });
+};
 
   return (
     <div className="relative bg-white/90 backdrop-blur-md border border-indigo-100 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300">
