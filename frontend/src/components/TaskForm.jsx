@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function TaskForm({ onCreate }) {
+export default function TaskForm({ onCreate,isAdmin }) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [loading, setLoading] = useState(false);
@@ -18,6 +18,11 @@ export default function TaskForm({ onCreate }) {
     try {
       setLoading(true);
 
+      if(!isAdmin){
+        toast.error("You are a member and not allowed to create tasks");
+        setTitle("");
+        return;
+      }
       await onCreate({
         title,
         priority,

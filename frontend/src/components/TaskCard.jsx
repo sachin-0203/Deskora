@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
+export default function TaskCard({
+  task,
+  onStatusChange,
+  onDelete,
+  isAdmin,
+}) {
   const [status, setStatus] = useState(task.status);
   const [loading, setLoading] = useState(false);
 
-  // Handle Status Change
+  // ── Handle Status Change ──
   const handleChange = async (e) => {
     const newStatus = e.target.value;
 
@@ -15,44 +20,43 @@ export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
       setLoading(true);
 
       await onStatusChange(task.id, newStatus);
-
-      toast.success("Task status updated");
     } catch (err) {
-      toast.error("Failed to update status");
+      setStatus(task.status);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle Delete
+  // ── Handle Delete ──
   const handleDelete = async () => {
-    
     if (!isAdmin) {
-      toast.error("You are a member and not allowed to delete tasks");
+      toast.error(
+        "You are a member and not allowed to delete tasks"
+      );
       return;
     }
-    
+
     toast("Delete this task?", {
       action: {
         label: "Delete",
         onClick: async () => {
           try {
             setLoading(true);
+
             await onDelete(task.id);
-            toast.success("Task deleted successfully");
-          } catch (err) {
-            toast.error("Failed to delete task");
           } finally {
             setLoading(false);
           }
         },
       },
+
       cancel: {
         label: "Cancel",
         onClick: () => {},
       },
     });
   };
+
   return (
     <div className="relative bg-white/90 backdrop-blur-md border border-indigo-100 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       {/* Title */}
@@ -70,7 +74,9 @@ export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
       {/* Meta */}
       <div className="mt-4 space-y-2 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-gray-500 font-medium">Priority</span>
+          <span className="text-gray-500 font-medium">
+            Priority
+          </span>
 
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium
@@ -78,8 +84,8 @@ export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
               task.priority === "High"
                 ? "bg-red-100 text-red-600"
                 : task.priority === "Medium"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-green-100 text-green-600"
+                ? "bg-yellow-100 text-yellow-700"
+                : "bg-green-100 text-green-600"
             }`}
           >
             {task.priority || "N/A"}
@@ -87,7 +93,9 @@ export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-gray-500 font-medium">Due Date</span>
+          <span className="text-gray-500 font-medium">
+            Due Date
+          </span>
 
           <span className="text-gray-700 text-sm">
             {task.due_date
@@ -108,8 +116,8 @@ export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
             status === "To Do"
               ? "bg-indigo-50 text-indigo-600 border-indigo-200 focus:ring-4 focus:ring-red-100"
               : status === "In Progress"
-                ? "bg-yellow-50 text-yellow-700 border-yellow-200 focus:ring-4 focus:ring-yellow-100"
-                : "bg-green-50 text-green-600 border-green-200 focus:ring-4 focus:ring-green-100"
+              ? "bg-yellow-50 text-yellow-700 border-yellow-200 focus:ring-4 focus:ring-yellow-100"
+              : "bg-green-50 text-green-600 border-green-200 focus:ring-4 focus:ring-green-100"
           }`}
         >
           <option value="To Do">To Do</option>
