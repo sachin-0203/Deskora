@@ -257,7 +257,7 @@ export default function About() {
 
             {/* Portfolio */}
             <a
-              href="https://www.sachiindev.netlify.app"
+              href="https://sachiindev.netlify.app/"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-100 transition-all duration-200"
