@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import About from "./components/About";
 import Guide from "./components/Guide";
+import SessionExpired from "./pages/SessionExpired";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/session-expired" element={<SessionExpired />} />
 
         <Route element={<Layout />}>
           <Route path="/about" element={<About />} />

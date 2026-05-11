@@ -3,7 +3,33 @@ import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import TaskForm from "../components/TaskForm";
 import TaskCard from "../components/TaskCard";
-import { LayoutDashboard, Trash2, UserPlus, ClipboardList, Users, X, Mail, Shield, User } from "lucide-react";
+import { LayoutDashboard, Trash2, UserPlus, ClipboardList, X, Mail, Shield, AlertCircle, CheckCircle } from "lucide-react";
+
+// ── Toast Component ──
+function Toast({ message, type = "error", onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3500);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg border transition-all duration-300
+      ${type === "error"
+        ? "bg-red-50 border-red-200 text-red-600"
+        : "bg-green-50 border-green-200 text-green-600"
+      }`}
+    >
+      {type === "error"
+        ? <AlertCircle size={18} className="shrink-0" />
+        : <CheckCircle size={18} className="shrink-0" />
+      }
+      <p className="text-sm font-medium">{message}</p>
+      <button onClick={onClose} className="ml-2 p-0.5 rounded hover:opacity-70 transition-all">
+        <X size={15} />
+      </button>
+    </div>
+  );
+}
 
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -16,13 +42,23 @@ export default function ProjectDetails() {
   const [addingMember, setAddingMember] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [toast, setToast] = useState(null); // { message, type }
+
+  // ── Get current user role ──
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const currentUserRole = members.find(m => m.id === currentUser?.id)?.role;
+  const isAdmin = currentUserRole === "admin";
+
+  const showToast = (message, type = "error") => {
+    setToast({ message, type });
+  };
 
   const fetchTasks = async () => {
     try {
       const res = await API.get(`/tasks/project/${id}`);
       setTasks(res.data);
     } catch (err) {
-      alert("Failed to fetch tasks");
+      showToast("Failed to fetch tasks");
     }
   };
 
@@ -31,7 +67,7 @@ export default function ProjectDetails() {
       const res = await API.get(`/projects/${id}/members`);
       setMembers(res.data);
     } catch (err) {
-      alert("Failed to fetch members");
+      showToast("Failed to fetch members");
     }
   };
 
@@ -54,8 +90,9 @@ export default function ProjectDetails() {
         assigned_to: 1,
       });
       fetchTasks();
+      showToast("Task created successfully", "success");
     } catch (err) {
-      alert("Failed to create task");
+      showToast("Failed to create task");
     }
   };
 
@@ -64,58 +101,77 @@ export default function ProjectDetails() {
       await API.put(`/tasks/${taskId}`, { status });
       fetchTasks();
     } catch (err) {
-      alert("Failed to update task");
+      showToast("Failed to update task");
     }
   };
 
   const handleDeleteProject = async () => {
+    if (!isAdmin) {
+      setShowDeleteConfirm(false);
+      showToast("You are a member and not allowed to delete this project");
+      return;
+    }
     try {
       await API.delete(`/projects/${id}`);
       navigate("/projects");
     } catch (err) {
-      alert("Failed to delete project");
+      showToast("Failed to delete project");
     }
   };
 
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!email) return;
+    if (!isAdmin) {
+      showToast("You are a member and not allowed to add members");
+      return;
+    }
     setAddingMember(true);
     try {
       await API.post(`/projects/${id}/add-member`, { email });
       setEmail("");
       fetchMembers();
+      showToast("Member added successfully", "success");
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to add member");
+      showToast(err.response?.data?.error || "Failed to add member");
     } finally {
       setAddingMember(false);
     }
   };
 
   const handleRemoveMember = async (memberId) => {
+    if (!isAdmin) {
+      setSelectedMember(null);
+      showToast("You are a member and not allowed to remove members");
+      return;
+    }
     try {
       await API.delete(`/projects/${id}/remove-member/${memberId}`);
       fetchMembers();
       setSelectedMember(null);
+      showToast("Member removed", "success");
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to remove member");
+      showToast(err.response?.data?.error || "Failed to remove member");
     }
   };
 
   const deleteTask = async (taskId) => {
+    if (!isAdmin) {
+      showToast("You are a member and not allowed to delete tasks");
+      return;
+    }
     try {
       await API.delete(`/tasks/${taskId}`);
       fetchTasks();
+      showToast("Task deleted", "success");
     } catch (err) {
-      alert("Failed to delete task");
+      showToast("Failed to delete task");
     }
   };
 
-  // Get initials from name
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
-  // Cycle of soft indigo shades for avatars
   const avatarColors = [
     "bg-indigo-100 text-indigo-600",
     "bg-purple-100 text-purple-600",
@@ -138,19 +194,36 @@ export default function ProjectDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
 
+      {/* ── Toast ── */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       {/* ── Page Header ── */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5">
-
-          {/* Title row */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-indigo-500 uppercase tracking-widest mb-1">
-                Project
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-xs font-medium text-indigo-500 uppercase tracking-widest">
+                  Project
+                </p>
+                {/* Role badge */}
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full border
+                  ${isAdmin
+                    ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+                    : "bg-gray-100 text-gray-500 border-gray-200"
+                  }`}
+                >
+                  {isAdmin ? "👑 Admin" : "👤 Member"}
+                </span>
+              </div>
               <h1 className="text-2xl font-bold text-gray-800">Project Details</h1>
 
-              {/* Member avatars row — right under heading */}
               <div className="flex items-center gap-2 mt-3">
                 <div className="flex -space-x-2">
                   {members.slice(0, 6).map((m, i) => (
@@ -175,7 +248,6 @@ export default function ProjectDetails() {
               </div>
             </div>
 
-            {/* Action buttons */}
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => navigate(`/dashboard/${id}`)}
@@ -184,8 +256,12 @@ export default function ProjectDetails() {
                 <LayoutDashboard size={15} /> Dashboard
               </button>
               <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 transition-all duration-200 cursor-pointer"
+                onClick={() => isAdmin ? setShowDeleteConfirm(true) : showToast("You are a member and not allowed to delete this project")}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border transition-all duration-200 cursor-pointer
+                  ${isAdmin
+                    ? "bg-red-50 text-red-500 border-red-200 hover:bg-red-100"
+                    : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                  }`}
               >
                 <Trash2 size={15} /> Delete
               </button>
@@ -197,7 +273,6 @@ export default function ProjectDetails() {
       {/* ── Main Content ── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-        {/* ── Top Row: Task Form (70%) + Add Member (30%) ── */}
         <div className="flex flex-col md:flex-row gap-4">
 
           {/* Add Task — 70% */}
@@ -219,7 +294,6 @@ export default function ProjectDetails() {
               </div>
               <h2 className="font-semibold text-gray-800">Add Member</h2>
             </div>
-
             <form onSubmit={handleAddMember} className="flex flex-col gap-2">
               <input
                 value={email}
@@ -262,6 +336,7 @@ export default function ProjectDetails() {
                   task={task}
                   onStatusChange={updateStatus}
                   onDelete={deleteTask}
+                  isAdmin={isAdmin}
                 />
               ))}
             </div>
@@ -279,17 +354,11 @@ export default function ProjectDetails() {
             className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close */}
             <div className="flex justify-end mb-2">
-              <button
-                onClick={() => setSelectedMember(null)}
-                className="p-1.5 rounded-md text-gray-400 hover:bg-gray-100 transition-all"
-              >
+              <button onClick={() => setSelectedMember(null)} className="p-1.5 rounded-md text-gray-400 hover:bg-gray-100 transition-all">
                 <X size={18} />
               </button>
             </div>
-
-            {/* Avatar */}
             <div className="flex flex-col items-center gap-2 mb-5">
               <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold border-4 border-white shadow-md
                 ${avatarColors[members.findIndex(m => m.id === selectedMember.id) % avatarColors.length]}`}
@@ -306,8 +375,6 @@ export default function ProjectDetails() {
                 {selectedMember.role === "admin" ? "👑 Admin" : "Member"}
               </span>
             </div>
-
-            {/* Details */}
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
                 <Mail size={16} className="text-indigo-400 shrink-0" />
@@ -318,8 +385,6 @@ export default function ProjectDetails() {
                 <span className="text-sm text-gray-600 capitalize">{selectedMember.role}</span>
               </div>
             </div>
-
-            {/* Remove button — only for non-admin */}
             {selectedMember.role !== "admin" && (
               <button
                 onClick={() => handleRemoveMember(selectedMember.id)}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function TaskCard({ task, onStatusChange, onDelete }) {
+export default function TaskCard({ task, onStatusChange, onDelete, isAdmin }) {
   const [status, setStatus] = useState(task.status);
   const [loading, setLoading] = useState(false);
 
@@ -25,29 +25,34 @@ export default function TaskCard({ task, onStatusChange, onDelete }) {
   };
 
   // Handle Delete
-const handleDelete = async () => {
-  toast("Delete this task?", {
-    action: {
-      label: "Delete",
-      onClick: async () => {
-        try {
-          setLoading(true);
-          await onDelete(task.id);
-          toast.success("Task deleted successfully");
-        } catch (err) {
-          toast.error("Failed to delete task");
-        } finally {
-          setLoading(false);
-        }
+  const handleDelete = async () => {
+    
+    if (!isAdmin) {
+      toast.error("You are a member and not allowed to delete tasks");
+      return;
+    }
+    
+    toast("Delete this task?", {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            setLoading(true);
+            await onDelete(task.id);
+            toast.success("Task deleted successfully");
+          } catch (err) {
+            toast.error("Failed to delete task");
+          } finally {
+            setLoading(false);
+          }
+        },
       },
-    },
-    cancel: {
-      label: "Cancel",
-      onClick: () => {},
-    },
-  });
-};
-
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
+  };
   return (
     <div className="relative bg-white/90 backdrop-blur-md border border-indigo-100 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       {/* Title */}
@@ -107,11 +112,11 @@ const handleDelete = async () => {
                 : "bg-green-50 text-green-600 border-green-200 focus:ring-4 focus:ring-green-100"
           }`}
         >
-            <option value="To Do">To Do</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Done">Done</option>
-          </select>
-        </div>
+          <option value="To Do">To Do</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+      </div>
 
       {/* Delete Button */}
       <button
